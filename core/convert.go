@@ -92,5 +92,27 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 
 // inferAccountType accepts an account name and infers its type.
 func inferAccountType(account string) (bankAccountType, error) {
-	return iciciSavings, nil
+	// These keywords can be modified to control the behaviour of this function.
+	creditCardKeywords := []string{"credit"}
+	iciciKeywords := []string{"icici"}
+	hdfcKeyworkds := []string{"hdfc"}
+
+	// Check if the account is a credit card account.
+	isCreditCard := containsAnyCaseInsensitive(account, creditCardKeywords)
+
+	if containsAnyCaseInsensitive(account, iciciKeywords) {
+		if isCreditCard {
+			return iciciCredit, nil
+		}
+		return iciciSavings, nil
+	}
+
+	if containsAnyCaseInsensitive(account, hdfcKeyworkds) {
+		if isCreditCard {
+			return hdfcCredit, nil
+		}
+		return hdfcSavings, nil
+	}
+
+	return "", fmt.Errorf("no keyword matches found")
 }

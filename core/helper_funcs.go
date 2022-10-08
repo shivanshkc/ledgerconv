@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 // showDirs returns all directories present within the given directory.
@@ -83,4 +84,20 @@ func readCSV(pathToFile string) ([][]string, error) {
 	}
 
 	return csvContent, nil
+}
+
+// containsAnyCaseInsensitive returns true if s contains any of the strings within substr case-insensitively.
+func containsAnyCaseInsensitive(str string, subStr []string) bool {
+	// Convert to lower case for case-insenstive comparison.
+	str = strings.ToLower(str)
+
+	// Loop over all sub-strings to find match.
+	for _, sub := range subStr {
+		// Convert to lower case for case-insenstive comparison.
+		sub = strings.ToLower(sub)
+		if strings.Contains(str, sub) {
+			return true
+		}
+	}
+	return false
 }
