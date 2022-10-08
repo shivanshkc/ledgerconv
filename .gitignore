@@ -1,6 +1,9 @@
 # Compiled output
 bin
 
+# Sensitive data
+statements
+
 # IDE Metadata
 .idea
 .vscode

@@ -34,6 +34,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringVarP(&rootParamOutputDir, "output", "o", "./converted",
+	rootCmd.Flags().StringVarP(&rootParamOutputDir, "output", "o", "./statements/converted",
 		"The directory where the converted statement will be stored.")
 }
