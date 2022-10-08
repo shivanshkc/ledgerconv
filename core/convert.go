@@ -69,6 +69,11 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 				return fmt.Errorf("failed to convert statement file: %s, because: %w", pathToFile, err)
 			}
 
+			// Add account name to all transactions.
+			for _, doc := range txDocs {
+				doc.AccountName = accountDir
+			}
+
 			// Collect results.
 			transactionDocs = append(transactionDocs, txDocs...)
 		}
@@ -95,7 +100,7 @@ func inferAccountType(account string) (bankAccountType, error) {
 	// These keywords can be modified to control the behaviour of this function.
 	creditCardKeywords := []string{"credit"}
 	iciciKeywords := []string{"icici"}
-	hdfcKeyworkds := []string{"hdfc"}
+	hdfcKeywords := []string{"hdfc"}
 
 	// Check if the account is a credit card account.
 	isCreditCard := containsAnyCaseInsensitive(account, creditCardKeywords)
@@ -107,7 +112,7 @@ func inferAccountType(account string) (bankAccountType, error) {
 		return iciciSavings, nil
 	}
 
-	if containsAnyCaseInsensitive(account, hdfcKeyworkds) {
+	if containsAnyCaseInsensitive(account, hdfcKeywords) {
 		if isCreditCard {
 			return hdfcCredit, nil
 		}
