@@ -18,12 +18,17 @@ const (
 
 // accountTypeInferRules define how an informal account name will be converted into a definite BankAccountType.
 var accountTypeInferRules = msi{
+	// If the account name contains the "credit" keyword...
 	"credit": msi{
-		"icici": iciciCredit,
-		"hdfc":  hdfcCredit,
+		// And it contains the "icici" keyword as well...
+		"icici": iciciCredit, // Then the account type is iciciCredit.
+		// And it contains the "hdfc" keyword as well...
+		"hdfc": hdfcCredit, // Then the account type is hdfcCredit.
 	},
-	"icici": iciciSavings,
-	"hdfc":  hdfcSavings,
+	// If the account name contains the "icici" keyword...
+	"icici": iciciSavings, // Then the account type is iciciSavings.
+	// If the account name contains the "hdfc" keyword...
+	"hdfc": hdfcSavings, // Then the account type is hdfcSavings.
 }
 
 // ConverterMap maps bank account types to their respective ConverterFunc.
@@ -31,7 +36,7 @@ var ConverterMap = map[BankAccountType]ConverterFunc{
 	iciciSavings: convICICISavings,
 	iciciCredit:  convICICICredit,
 	hdfcSavings:  convHDFCSavings,
-	hdfcCredit:   nil,
+	hdfcCredit:   nil, // This means not-implemented.
 }
 
 // InferAccountType accepts an account name and infers its type.
