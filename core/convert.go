@@ -7,15 +7,9 @@ import (
 	"os"
 	"path"
 	"time"
-)
 
-// converterMap maps bank account types to their respective converterFuncs.
-var converterMap = map[bankAccountType]converterFunc{
-	iciciSavings: convICICISavings,
-	iciciCredit:  convICICICredit,
-	hdfcSavings:  convHDFCSavings,
-	hdfcCredit:   convHDFCCredit,
-}
+	"github.com/shivanshkc/ledgerconv/core/banks"
+)
 
 // Convert converts all the bank statements in the inputDir into JSON format and stores them into the outputDir.
 //
@@ -28,18 +22,18 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 	}
 
 	// All transactions will be collected in this slice.
-	var transactionDocs []*transactionDoc
+	var transactionDocs []*banks.TransactionDoc
 
 	// Loop over all account directories to convert all their statements.
 	for _, accountDir := range accountDirs {
 		// Infer the account type for this account. This is needed to pick the right converterFunc.
-		accountType, err := inferAccountType(accountDir)
+		accountType, err := banks.InferAccountType(accountDir)
 		if err != nil {
 			return fmt.Errorf("failed to infer account type for account: %s, because: %w", accountDir, err)
 		}
 
 		// Pick the right converterFunc for this account.
-		converter, exists := converterMap[accountType]
+		converter, exists := banks.ConverterMap[accountType]
 		if !exists || converter == nil {
 			return fmt.Errorf("no converterFunc implementation found for this account type: %s, for directory: %s",
 				accountType, accountDir)
@@ -93,31 +87,4 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 	}
 
 	return nil
-}
-
-// inferAccountType accepts an account name and infers its type.
-func inferAccountType(account string) (bankAccountType, error) {
-	// These keywords can be modified to control the behaviour of this function.
-	creditCardKeywords := []string{"credit"}
-	iciciKeywords := []string{"icici"}
-	hdfcKeywords := []string{"hdfc"}
-
-	// Check if the account is a credit card account.
-	isCreditCard := containsAnyCaseInsensitive(account, creditCardKeywords)
-
-	if containsAnyCaseInsensitive(account, iciciKeywords) {
-		if isCreditCard {
-			return iciciCredit, nil
-		}
-		return iciciSavings, nil
-	}
-
-	if containsAnyCaseInsensitive(account, hdfcKeywords) {
-		if isCreditCard {
-			return hdfcCredit, nil
-		}
-		return hdfcSavings, nil
-	}
-
-	return "", fmt.Errorf("no keyword matches found")
 }
