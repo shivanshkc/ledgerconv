@@ -20,6 +20,13 @@ func convICICISavings(csvContent [][]string) ([]*TransactionDoc, error) {
 	// This var will hold the final list of converted transactions.
 	var txDocs []*TransactionDoc //nolint:prealloc // Cannot pre-allocate this one.
 
+	// Trim each element. Bank statement schemas are not to be trusted!
+	for i := range csvContent {
+		for j := range csvContent[i] {
+			csvContent[i][j] = strings.TrimSpace(csvContent[i][j])
+		}
+	}
+
 	// Loop over CSV rows to find the starting of the transaction table.
 	//nolint:varnamelen // "i" is a fine name here.
 	for i, row := range csvContent {
@@ -38,11 +45,6 @@ func convICICISavings(csvContent [][]string) ([]*TransactionDoc, error) {
 	}
 
 	for _, row := range csvContent[startingIdx+1:] {
-		// Trim each element. Bank statement schemas are not to be trusted!
-		for i := range row {
-			row[i] = strings.TrimSpace(row[i])
-		}
-
 		// Parse timestamp.
 		timestamp, err := time.Parse("02-01-2006", row[0])
 		if err != nil {
