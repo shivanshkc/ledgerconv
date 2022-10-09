@@ -9,7 +9,7 @@ import (
 
 // convICICICredit converts the ICICI credit card statements to JSON.
 //
-//nolint:funlen // Converter functions can be long.
+//nolint:funlen,cyclop // Converter functions can be long.
 func convICICICredit(csvContent [][]string) ([]*TransactionDoc, error) {
 	// Bank statement CSV files do not just contain the transaction list, but also some other metadata about the
 	// bank account. This header allows us to detect the starting of the transaction table, so we can skip the needless.
@@ -36,7 +36,7 @@ func convICICICredit(csvContent [][]string) ([]*TransactionDoc, error) {
 	}
 
 	// Just a safety check.
-	if startingIdx >= len(csvContent) {
+	if startingIdx == 0 || startingIdx >= len(csvContent) {
 		return nil, nil
 	}
 

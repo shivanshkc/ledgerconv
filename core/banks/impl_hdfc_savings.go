@@ -35,7 +35,7 @@ func convHDFCSavings(csvContent [][]string) ([]*TransactionDoc, error) {
 	}
 
 	// Just a safety check.
-	if startingIdx >= len(csvContent) {
+	if startingIdx == 0 || startingIdx >= len(csvContent) {
 		return nil, nil
 	}
 
