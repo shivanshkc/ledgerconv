@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"time"
+	"strings"
 
 	"github.com/shivanshkc/ledgerconv/core/banks"
 )
@@ -26,6 +26,11 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 
 	// Loop over all account directories to convert all their statements.
 	for _, accountDir := range accountDirs {
+		// Hidden directories are ignored.
+		if strings.HasPrefix(accountDir, ".") {
+			continue
+		}
+
 		// Infer the account type for this account. This is needed to pick the right converterFunc.
 		accountType, err := banks.InferAccountType(accountDir)
 		if err != nil {
@@ -80,7 +85,7 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 	}
 
 	// Name of the output file.
-	outputFilePath := path.Join(outputDir, fmt.Sprintf("transactions-%d.json", time.Now().Unix()))
+	outputFilePath := path.Join(outputDir, "transactions.json")
 	// Write the output file.
 	if err := os.WriteFile(outputFilePath, transactionDocsBytes, os.ModePerm); err != nil {
 		return fmt.Errorf("failed to write output file: %w", err)

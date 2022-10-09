@@ -48,6 +48,11 @@ func convHDFCSavings(csvContent [][]string) ([]*TransactionDoc, error) {
 
 	// Begin looping over the transaction table.
 	for _, row := range csvContent[startingIdx:] {
+		// Due to some reason, the statements contain empty rows in between too.
+		if row[0] == "" {
+			continue
+		}
+
 		// Parse timestamp.
 		timestamp, err := time.Parse("02/01/06", row[0])
 		if err != nil {

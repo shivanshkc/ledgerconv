@@ -49,6 +49,11 @@ func convICICICredit(csvContent [][]string) ([]*TransactionDoc, error) {
 
 	// Begin looping over the transaction table.
 	for _, row := range csvContent[startingIdx:] {
+		// Due to some reason, the statements contain empty rows in between too.
+		if row[0] == "" {
+			continue
+		}
+
 		// Parse timestamp.
 		timestamp, err := time.Parse("02/01/2006", row[0])
 		if err != nil {
@@ -71,8 +76,8 @@ func convICICICredit(csvContent [][]string) ([]*TransactionDoc, error) {
 			continue
 		}
 
-		// If the amount sign is CR, it means it is a credit transaction.
-		if amountSign != "CR" {
+		// Apparently, debit transactions have "CR" BillingAmountSign -_-
+		if amountSign == "CR" {
 			amount *= -1
 		}
 

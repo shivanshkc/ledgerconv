@@ -45,6 +45,11 @@ func convICICISavings(csvContent [][]string) ([]*TransactionDoc, error) {
 	}
 
 	for _, row := range csvContent[startingIdx+1:] {
+		// Due to some reason, the statements contain empty rows in between too.
+		if row[0] == "" {
+			continue
+		}
+
 		// Parse timestamp.
 		timestamp, err := time.Parse("02-01-2006", row[0])
 		if err != nil {
@@ -56,8 +61,8 @@ func convICICISavings(csvContent [][]string) ([]*TransactionDoc, error) {
 		paymentMode, remarks := row[1], row[2]
 
 		// Get the amount information.
-		debitAmount, errDebit := strconv.ParseFloat(row[3], 64)
-		creditAmount, errCredit := strconv.ParseFloat(row[4], 64)
+		creditAmount, errCredit := strconv.ParseFloat(row[3], 64)
+		debitAmount, errDebit := strconv.ParseFloat(row[4], 64)
 
 		// If both amounts failed to parse, we cannot proceed further.
 		if errDebit != nil && errCredit != nil {
