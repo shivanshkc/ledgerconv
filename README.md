@@ -1,3 +1,56 @@
 # Ledgerconv
 
-Ledgerconv is a command line tool to convert bank statement CSV files into formatted JSON documents.
+Ledgerconv converts multiple bank CSV statement files into a single JSON statement file.
+
+## How to use
+
+Ledgerconv expects the input statement files to be arranged in the following directory structure.
+```
+my-input-directory
+|___ name-of-your-account
+|       |___ statement-file-1.csv
+|       |___ statement-file-2.csv
+|       |___ statement-file-3.csv
+|___ for-example-hdfc-savings
+|       |___ statement-file-1.csv
+|       |___ statement-file-2.csv
+|___ for-example-icici-credit-card
+        |___ statement-file-1.csv
+        |___ statement-file-2.csv
+```
+
+Once you have your statements in the correct structure, simply execute:
+
+```shell
+ledgerconv <input-dir> -o <output-dir>
+```
+
+An example can be:
+```shell
+ledgerconv ./statements/original -o ./statements/converted
+```
+
+The output JSON statement file contains an array of bank-agnostic transaction documents.
+The schema of a transaction document is as follows:
+
+```json
+{
+  "account_name": "string",
+  "amount": "float64",
+  "timestamp": "string",
+  "bank_ref_num": "string",
+  "payment_mode": "string",
+  "remarks": "string"
+}
+```
+
+## Supported banks
+
+Currently, Ledgerconv can handle the following types of bank statements:
+1. ICICI savings account statements
+2. ICICI credit card statements
+3. HDFC savings account statements
+
+## Add support for a bank
+
+TODO
