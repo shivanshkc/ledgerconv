@@ -3,6 +3,7 @@ bin
 
 # Sensitive data
 statements
+output
 
 # IDE Metadata
 .idea
