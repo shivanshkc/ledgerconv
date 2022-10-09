@@ -1,6 +1,6 @@
 # Ledgerconv
 
-Ledgerconv converts multiple bank CSV statement files into a single JSON statement file.
+Ledgerconv is a command line tool that converts multiple bank CSV statement files into a single JSON statement file.
 
 ## How to use
 
