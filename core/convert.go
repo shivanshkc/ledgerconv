@@ -9,9 +9,12 @@ import (
 	"strings"
 
 	"github.com/shivanshkc/ledgerconv/core/banks"
+	"github.com/shivanshkc/ledgerconv/core/models"
 )
 
 // Convert converts all the bank statements in the inputDir into JSON format and stores them into the outputDir.
+//
+// This is an idempotent operation.
 //
 //nolint:funlen,cyclop // Core functions are allowed to be big.
 func Convert(ctx context.Context, inputDir string, outputDir string) error {
@@ -22,7 +25,7 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 	}
 
 	// All transactions will be collected in this slice.
-	var transactionDocs []*banks.TransactionDoc
+	var transactionDocs []*models.TransactionDoc
 
 	// Loop over all account directories to convert all their statements.
 	for _, accountDir := range accountDirs {

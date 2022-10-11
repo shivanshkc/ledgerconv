@@ -13,8 +13,9 @@ var convertParamOutputDir string
 
 // convertCmd represents the convert command.
 var convertCmd = &cobra.Command{
-	Use:   "convert",
+	Use:   "convert <input-dir>",
 	Short: "Convert CSV bank statements into JSON",
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		inputDir := args[0]
 		// Core call.

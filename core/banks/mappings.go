@@ -5,9 +5,6 @@ import (
 	"strings"
 )
 
-// Shorthand for map[string]interface{}.
-type msi = map[string]interface{}
-
 const (
 	iciciSavings BankAccountType = "icici-savings"
 	iciciCredit  BankAccountType = "icici-credit"
