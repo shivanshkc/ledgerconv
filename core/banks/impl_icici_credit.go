@@ -9,7 +9,7 @@ import (
 
 // convICICICredit converts the ICICI credit card statements to JSON.
 //
-//nolint:funlen // Converter functions can be long.
+//nolint:funlen,cyclop // Converter functions can be long.
 func convICICICredit(csvContent [][]string) ([]*TransactionDoc, error) {
 	// Bank statement CSV files do not just contain the transaction list, but also some other metadata about the
 	// bank account. This header allows us to detect the starting of the transaction table, so we can skip the needless.
@@ -22,6 +22,13 @@ func convICICICredit(csvContent [][]string) ([]*TransactionDoc, error) {
 	var startingIdx int
 	// This var will hold the final list of converted transactions.
 	var txDocs []*TransactionDoc //nolint:prealloc // Cannot pre-allocate this one.
+
+	// Trim each element. Bank statement schemas are not to be trusted!
+	for i := range csvContent {
+		for j := range csvContent[i] {
+			csvContent[i][j] = strings.TrimSpace(csvContent[i][j])
+		}
+	}
 
 	// Loop over CSV rows to find the starting of the transaction table.
 	//nolint:varnamelen // "i" is a fine name here.
@@ -36,15 +43,15 @@ func convICICICredit(csvContent [][]string) ([]*TransactionDoc, error) {
 	}
 
 	// Just a safety check.
-	if startingIdx >= len(csvContent) {
+	if startingIdx == 0 || startingIdx >= len(csvContent) {
 		return nil, nil
 	}
 
 	// Begin looping over the transaction table.
 	for _, row := range csvContent[startingIdx:] {
-		// Trim each element. Bank statement schemas are not to be trusted!
-		for i := range row {
-			row[i] = strings.TrimSpace(row[i])
+		// Due to some reason, the statements contain empty rows in between too.
+		if row[0] == "" {
+			continue
 		}
 
 		// Parse timestamp.
@@ -69,8 +76,8 @@ func convICICICredit(csvContent [][]string) ([]*TransactionDoc, error) {
 			continue
 		}
 
-		// If the amount sign is CR, it means it is a credit transaction.
-		if amountSign != "CR" {
+		// Apparently, debit transactions have "CR" BillingAmountSign -_-
+		if amountSign == "CR" {
 			amount *= -1
 		}
 
