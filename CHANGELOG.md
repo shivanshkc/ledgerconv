@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/shivanshkc/ledgerconv/compare/v1.0.0...v1.0.1) (2022-10-11)
+
+
+### Bug Fixes
+
+* **core:** bank special cases handled ([174759b](https://github.com/shivanshkc/ledgerconv/commit/174759b1db2503d49ca533ed4edda64b3afbe855))
+* **core:** startingIdx bug fix ([c5fec7b](https://github.com/shivanshkc/ledgerconv/commit/c5fec7b918121ef4a2a943267ddc48f9763c6f98))
+* **core:** trimming csv content correctly ([cff2ec0](https://github.com/shivanshkc/ledgerconv/commit/cff2ec04b5ee865a311ca8f49c79ab300713be29))
+
 # 1.0.0 (2022-10-09)
 
 
