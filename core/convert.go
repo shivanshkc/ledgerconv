@@ -79,7 +79,7 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 	}
 
 	// Marshal the transaction list to write into file.
-	transactionDocsBytes, err := json.Marshal(transactionDocs)
+	transactionDocsBytes, err := json.MarshalIndent(transactionDocs, "", "\t")
 	if err != nil {
 		return fmt.Errorf("failed to marshal transaction list: %w", err)
 	}
