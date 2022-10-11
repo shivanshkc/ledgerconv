@@ -4,8 +4,8 @@ import (
 	"time"
 )
 
-// TransactionDoc represents a bank agnostic transaction document.
-type TransactionDoc struct {
+// ConvertedTransactionDoc represents a bank agnostic transaction document.
+type ConvertedTransactionDoc struct {
 	AccountName string `json:"account_name"`
 
 	Amount    float64   `json:"amount"`

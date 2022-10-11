@@ -12,7 +12,7 @@ import (
 // convICICISavings converts the ICICI savings account statements to JSON.
 //
 //nolint:funlen,cyclop // Converter functions can be long.
-func convICICISavings(csvContent [][]string) ([]*models.TransactionDoc, error) {
+func convICICISavings(csvContent [][]string) ([]*models.ConvertedTransactionDoc, error) {
 	// Bank statement CSV files do not just contain the transaction list, but also some other metadata about the
 	// bank account. This header allows us to detect the starting of the transaction table, so we can skip the needless.
 	startingHeader := []string{"DATE", "MODE", "PARTICULARS", "DEPOSITS", "WITHDRAWALS", "BALANCE"}
@@ -20,7 +20,7 @@ func convICICISavings(csvContent [][]string) ([]*models.TransactionDoc, error) {
 	// This var will hold the index of the first transaction table row.
 	var startingIdx int
 	// This var will hold the final list of converted transactions.
-	var txDocs []*models.TransactionDoc //nolint:prealloc // Cannot pre-allocate this one.
+	var txDocs []*models.ConvertedTransactionDoc //nolint:prealloc // Cannot pre-allocate this one.
 
 	// Trim each element. Bank statement schemas are not to be trusted!
 	for i := range csvContent {
@@ -85,7 +85,7 @@ func convICICISavings(csvContent [][]string) ([]*models.TransactionDoc, error) {
 		}
 
 		// Instantiating the transaction doc.
-		doc := &models.TransactionDoc{
+		doc := &models.ConvertedTransactionDoc{
 			AccountName: "", // This is not the responsibility of the converterFunc.
 			Amount:      amount,
 			Timestamp:   timestamp,

@@ -25,7 +25,7 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 	}
 
 	// All transactions will be collected in this slice.
-	var transactionDocs []*models.TransactionDoc
+	var transactionDocs []*models.ConvertedTransactionDoc
 
 	// Loop over all account directories to convert all their statements.
 	for _, accountDir := range accountDirs {
