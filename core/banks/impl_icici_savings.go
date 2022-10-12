@@ -86,12 +86,12 @@ func convICICISavings(csvContent [][]string) ([]*models.ConvertedTransactionDoc,
 
 		// Instantiating the transaction doc.
 		doc := &models.ConvertedTransactionDoc{
-			AccountName: "", // This is not the responsibility of the converterFunc.
-			Amount:      amount,
-			Timestamp:   timestamp,
-			RefNum:      "",
-			PaymentMode: paymentMode,
-			Remarks:     remarks,
+			AccountName:     "", // This is not the responsibility of the converterFunc.
+			Amount:          amount,
+			Timestamp:       timestamp,
+			BankSerial:      "",
+			BankPaymentMode: paymentMode,
+			BankRemarks:     remarks,
 		}
 
 		// Collecting the result.

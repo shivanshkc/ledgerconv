@@ -63,7 +63,7 @@ func convHDFCSavings(csvContent [][]string) ([]*models.ConvertedTransactionDoc, 
 		}
 
 		// Other required fields.
-		remarks, refNum := row[1], row[5]
+		remarks, serial := row[1], row[5]
 
 		// Get the amount information.
 		debitAmount, errDebit := strconv.ParseFloat(row[3], 64)
@@ -89,12 +89,12 @@ func convHDFCSavings(csvContent [][]string) ([]*models.ConvertedTransactionDoc, 
 
 		// Instantiating the transaction doc.
 		doc := &models.ConvertedTransactionDoc{
-			AccountName: "", // This is not the responsibility of the converterFunc.
-			Amount:      amount,
-			Timestamp:   timestamp,
-			RefNum:      refNum,
-			PaymentMode: "",
-			Remarks:     remarks,
+			AccountName:     "", // This is not the responsibility of the converterFunc.
+			Amount:          amount,
+			Timestamp:       timestamp,
+			BankSerial:      serial,
+			BankPaymentMode: "",
+			BankRemarks:     remarks,
 		}
 
 		// Collecting the result.
