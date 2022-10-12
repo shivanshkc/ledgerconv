@@ -12,6 +12,9 @@ import (
 	"github.com/shivanshkc/ledgerconv/core/models"
 )
 
+// convertedFilename is the name of the file in which the converted transactions will be written.
+const convertedFilename = "converted-transactions.json"
+
 // Convert converts all the bank statements in the inputDir into JSON format and stores them into the outputDir.
 //
 // This is an idempotent operation.
@@ -88,7 +91,7 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 	}
 
 	// Name of the output file.
-	outputFilePath := path.Join(outputDir, "transactions.json")
+	outputFilePath := path.Join(outputDir, convertedFilename)
 	// Write the output file.
 	if err := os.WriteFile(outputFilePath, transactionDocsBytes, os.ModePerm); err != nil {
 		return fmt.Errorf("failed to write output file: %w", err)
