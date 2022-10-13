@@ -1,7 +1,6 @@
 package core
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
@@ -95,45 +94,55 @@ func Enhance(ctx context.Context, inputDir string, outputDir string) error {
 
 	// Now, loop over only the newly converted transactions.
 	for idx, txn := range newlyConverted {
+		color.Yellow(`###########################################`)
+		color.Yellow(fmt.Sprintf("Transaction %d out of %d", idx+1, len(newlyConverted)))
+
 		// Generate checksum.
 		correlationID, err := genConvertedTxChecksum(txn)
 		if err != nil {
 			return fmt.Errorf("failed to generate checksum: %w", err)
 		}
 
-		color.Yellow(`###########################################`)
-		color.Yellow(fmt.Sprintf("Transaction %d out of %d", idx+1, len(newlyConverted)))
-		color.Blue("-------------------------------------------")
-		printConvertedTx(txn)
-		color.Blue("-------------------------------------------")
-
-		// Prompt the user for inputs.
-		enhanced, err := takeUserInput(txn)
+		// Attempting auto-enhancement.
+		enhancedTx, done, err := autoEnhance(txn)
 		if err != nil {
-			return fmt.Errorf("failed to take user input: %w", err)
+			return fmt.Errorf("unexpected error while auto-enhancing transaction: %w", err)
 		}
 
-		enhanced.ConvertedTransactionDoc = txn
-		enhanced.DocCorrelationID = correlationID
+		// If auto-enhancement was successful, we do not need user input.
+		if done {
+			color.Blue("-------------------------------------------")
+			color.Yellow("Auto enhanced.")
+		} else {
+			// If auto-enhance failed, we ask user for manual enhancement.
+			enh, err := takeUserInput(txn)
+			if err != nil {
+				return fmt.Errorf("failed to take user input: %w", err)
+			}
+			// Update the outer variable.
+			enhancedTx = enh
+		}
 
-		enhancedStatementMap[correlationID] = enhanced
-		enhancedStatement = append(enhancedStatement, enhanced)
+		// Making sure these fields remain the same before and after enhancement.
+		enhancedTx.ConvertedTransactionDoc = txn
+		enhancedTx.DocCorrelationID = correlationID
 
-		// We write the statement file after every iteration so that we do not lose work in case of SIGINT or similar.
+		// Updating the in-memory statement.
+		enhancedStatementMap[correlationID] = enhancedTx
+		enhancedStatement = append(enhancedStatement, enhancedTx)
 
 		// Sort the enhanced statements.
 		sort.SliceStable(enhancedStatement, func(i, j int) bool {
 			return enhancedStatement[i].Timestamp.After(enhancedStatement[j].Timestamp)
 		})
 
-		color.Blue("-------------------------------------------")
-		color.Yellow("Saving...")
-
 		// Writing statement file.
+		// We write the statement file after every iteration so that we do not lose work in case of SIGINT or similar.
 		if err := writeJSON(enhancedStatement, path.Join(outputDir, enhancedFilename)); err != nil {
 			return fmt.Errorf("failed to write statement file: %w", err)
 		}
 
+		color.Blue("-------------------------------------------")
 		color.Yellow("Saved.")
 		color.Yellow(`###########################################`)
 	}
@@ -141,10 +150,20 @@ func Enhance(ctx context.Context, inputDir string, outputDir string) error {
 	return nil
 }
 
+// autoEnhance attempts to auto-enhance the given transaction.
+// If auto-enhancement succeeds, the returned boolean value is true, otherwise false.
+func autoEnhance(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransactionDoc, bool, error) {
+	return nil, false, nil
+}
+
 // takeUserInput prompts the user for inputs required to create an enhanced transaction.
 //
 //nolint:funlen,cyclop // TODO
 func takeUserInput(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransactionDoc, error) {
+	color.Blue("-------------------------------------------")
+	printConvertedTx(txn)
+	color.Blue("-------------------------------------------")
+
 	// This will hold the amount-per-category info.
 	amountPerCat := new(models.AmountPerCategory)
 
@@ -236,21 +255,4 @@ func takeUserInput(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransac
 		Tags:              tags,
 		Remarks:           remarks,
 	}, nil
-}
-
-// prompt the user for an input.
-func prompt(text string) (string, error) {
-	// Create a reader to read from stdin.
-	reader := bufio.NewReader(os.Stdin)
-	// Print the prompt text.
-	_, _ = color.New(color.FgMagenta).Print(text)
-
-	// Read user's input.
-	value, err := reader.ReadString('\n')
-	if err != nil {
-		return "", fmt.Errorf("failed to read stdin: %w", err)
-	}
-
-	// Return trimmed value.
-	return strings.TrimSpace(value), nil
 }

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bufio"
 	"crypto/sha256"
 	"encoding/csv"
 	"encoding/json"
@@ -8,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/shivanshkc/ledgerconv/core/models"
@@ -151,4 +153,21 @@ func printConvertedTx(doc *models.ConvertedTransactionDoc) {
 	fmt.Fprintln(writer, "")
 
 	writer.Flush()
+}
+
+// prompt the user for an input.
+func prompt(text string) (string, error) {
+	// Create a reader to read from stdin.
+	reader := bufio.NewReader(os.Stdin)
+	// Print the prompt text.
+	_, _ = color.New(color.FgMagenta).Print(text)
+
+	// Read user's input.
+	value, err := reader.ReadString('\n')
+	if err != nil {
+		return "", fmt.Errorf("failed to read stdin: %w", err)
+	}
+
+	// Return trimmed value.
+	return strings.TrimSpace(value), nil
 }
