@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/shivanshkc/ledgerconv/core/banks"
@@ -81,6 +82,11 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 			transactionDocs = append(transactionDocs, txDocs...)
 		}
 	}
+
+	// Sort the converted statements.
+	sort.SliceStable(transactionDocs, func(i, j int) bool {
+		return transactionDocs[i].Timestamp.After(transactionDocs[j].Timestamp)
+	})
 
 	// Writing statement file.
 	if err := writeJSON(transactionDocs, path.Join(outputDir, convertedFilename)); err != nil {
