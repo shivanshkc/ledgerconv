@@ -99,3 +99,14 @@ func genConvertedTxChecksum(tx *models.ConvertedTransactionDoc) (string, error) 
 	// Calculate, format and return the checksum.
 	return fmt.Sprintf("%x", sha256.Sum256(txBytes)), nil
 }
+
+// prettyPrintJSON prints a prettified json.
+func prettyPrintJSON(jsonLike interface{}) error {
+	jsonBytes, err := json.MarshalIndent(jsonLike, "", "\t")
+	if err != nil {
+		return fmt.Errorf("failed to marshal json: %w", err)
+	}
+
+	fmt.Println(string(jsonBytes))
+	return nil
+}
