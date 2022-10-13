@@ -32,6 +32,9 @@ var (
 //
 //nolint:funlen,cyclop // Core functions are allowed to be big.
 func Enhance(ctx context.Context, inputDir string, outputDir string) error {
+	// This will hold the final enhanced statement.
+	var enhancedStatement []*models.EnhancedTransactionDoc //nolint:prealloc // Cannot pre-allocate.
+
 	// Path to the existing enhanced statement file.
 	enhancedFilepath := path.Join(outputDir, enhancedFilename)
 	// Open the enhanced statement file to load existing enhanced transactions.
@@ -42,7 +45,6 @@ func Enhance(ctx context.Context, inputDir string, outputDir string) error {
 
 	// Decode the enhanced statement into a slice. If the file did not exist, the reader will be nil, and no decoding
 	// will take place.
-	var enhancedStatement []*models.EnhancedTransactionDoc //nolint:prealloc // Cannot pre-allocate.
 	if enhancedFileReader != nil {
 		defer func() { _ = enhancedFileReader.Close() }()
 
@@ -98,25 +100,18 @@ func Enhance(ctx context.Context, inputDir string, outputDir string) error {
 
 		enhancedStatementMap[correlationID] = enhanced
 		enhancedStatement = append(enhancedStatement, enhanced)
-		break
-	}
 
-	// Sort the enhanced statements.
-	sort.SliceStable(enhancedStatement, func(i, j int) bool {
-		return enhancedStatement[i].Timestamp.After(enhancedStatement[j].Timestamp)
-	})
+		// We write the statement file after every iteration so that we do not lose work in case of SIGINT or similar.
 
-	// Marshal the transaction list to write into file.
-	statementBytes, err := json.MarshalIndent(enhancedStatement, "", "\t")
-	if err != nil {
-		return fmt.Errorf("failed to marshal transaction list: %w", err)
-	}
+		// Sort the enhanced statements.
+		sort.SliceStable(enhancedStatement, func(i, j int) bool {
+			return enhancedStatement[i].Timestamp.After(enhancedStatement[j].Timestamp)
+		})
 
-	// Name of the output file.
-	outputFilePath := path.Join(outputDir, enhancedFilename)
-	// Write the output file.
-	if err := os.WriteFile(outputFilePath, statementBytes, os.ModePerm); err != nil {
-		return fmt.Errorf("failed to write output file: %w", err)
+		// Writing statement file.
+		if err := writeJSON(enhancedStatement, path.Join(outputDir, enhancedFilename)); err != nil {
+			return fmt.Errorf("failed to write statement file: %w", err)
+		}
 	}
 
 	return nil

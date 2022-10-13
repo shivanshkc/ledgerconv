@@ -110,3 +110,19 @@ func prettyPrintJSON(jsonLike interface{}) error {
 	fmt.Println(string(jsonBytes))
 	return nil
 }
+
+// writeJSON writes the provided JSON content into the given file.
+func writeJSON(jsonLike interface{}, filepath string) error {
+	// Marshal the transaction list to write into file.
+	jsonBytes, err := json.MarshalIndent(jsonLike, "", "\t")
+	if err != nil {
+		return fmt.Errorf("failed to marshal json: %w", err)
+	}
+
+	// Write the output file.
+	if err := os.WriteFile(filepath, jsonBytes, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to write output file: %w", err)
+	}
+
+	return nil
+}

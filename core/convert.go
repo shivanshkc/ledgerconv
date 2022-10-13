@@ -2,9 +2,7 @@ package core
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"os"
 	"path"
 	"strings"
 
@@ -84,17 +82,9 @@ func Convert(ctx context.Context, inputDir string, outputDir string) error {
 		}
 	}
 
-	// Marshal the transaction list to write into file.
-	transactionDocsBytes, err := json.MarshalIndent(transactionDocs, "", "\t")
-	if err != nil {
-		return fmt.Errorf("failed to marshal transaction list: %w", err)
-	}
-
-	// Name of the output file.
-	outputFilePath := path.Join(outputDir, convertedFilename)
-	// Write the output file.
-	if err := os.WriteFile(outputFilePath, transactionDocsBytes, os.ModePerm); err != nil {
-		return fmt.Errorf("failed to write output file: %w", err)
+	// Writing statement file.
+	if err := writeJSON(transactionDocs, path.Join(outputDir, convertedFilename)); err != nil {
+		return fmt.Errorf("failed to write statement file: %w", err)
 	}
 
 	return nil
