@@ -8,8 +8,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"text/tabwriter"
 
 	"github.com/shivanshkc/ledgerconv/core/models"
+
+	"github.com/fatih/color"
 )
 
 // showDirs returns all directories present within the given directory.
@@ -100,17 +103,6 @@ func genConvertedTxChecksum(tx *models.ConvertedTransactionDoc) (string, error) 
 	return fmt.Sprintf("%x", sha256.Sum256(txBytes)), nil
 }
 
-// prettyPrintJSON prints a prettified json.
-func prettyPrintJSON(jsonLike interface{}) error {
-	jsonBytes, err := json.MarshalIndent(jsonLike, "", "\t")
-	if err != nil {
-		return fmt.Errorf("failed to marshal json: %w", err)
-	}
-
-	fmt.Println(string(jsonBytes))
-	return nil
-}
-
 // writeJSON writes the provided JSON content into the given file.
 func writeJSON(jsonLike interface{}, filepath string) error {
 	// Marshal the transaction list to write into file.
@@ -125,4 +117,38 @@ func writeJSON(jsonLike interface{}, filepath string) error {
 	}
 
 	return nil
+}
+
+// printConvertedTx prints the ConvertedTransactionDoc prettily.
+func printConvertedTx(doc *models.ConvertedTransactionDoc) {
+	keyColor := color.New(color.FgMagenta)
+	valColor := color.New(color.FgCyan)
+
+	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
+
+	keyColor.Fprint(writer, "Account\t:\t")
+	valColor.Fprint(writer, doc.AccountName)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Amount\t:\t")
+	valColor.Fprint(writer, doc.Amount)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Timestamp\t:\t")
+	valColor.Fprint(writer, doc.Timestamp)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Bank serial\t:\t")
+	valColor.Fprint(writer, doc.BankSerial)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Payment mode\t:\t")
+	valColor.Fprint(writer, doc.BankPaymentMode)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Bank remarks\t:\t")
+	valColor.Fprint(writer, doc.BankRemarks)
+	fmt.Fprintln(writer, "")
+
+	writer.Flush()
 }

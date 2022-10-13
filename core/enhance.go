@@ -13,6 +13,8 @@ import (
 	"strings"
 
 	"github.com/shivanshkc/ledgerconv/core/models"
+
+	"github.com/fatih/color"
 )
 
 // enhancedFilename is the name of the file in which the enhanced transactions will be written.
@@ -74,6 +76,9 @@ func Enhance(ctx context.Context, inputDir string, outputDir string) error {
 		return fmt.Errorf("failed to decode the converted statement: %w", err)
 	}
 
+	// This will hold only the transactions that do not already exist in the enhanced statement.
+	var newlyConverted []*models.ConvertedTransactionDoc //nolint:prealloc // Cannot pre-allocate.
+
 	// Loop over all converted transactions to enhance them.
 	for _, txn := range convertedStatement {
 		// Generate checksum.
@@ -85,9 +90,22 @@ func Enhance(ctx context.Context, inputDir string, outputDir string) error {
 		if _, exists := enhancedStatementMap[correlationID]; exists {
 			continue
 		}
+		newlyConverted = append(newlyConverted, txn)
+	}
 
-		fmt.Println(">> NEW TRANSACTION:", correlationID)
-		_ = prettyPrintJSON(txn)
+	// Now, loop over only the newly converted transactions.
+	for idx, txn := range newlyConverted {
+		// Generate checksum.
+		correlationID, err := genConvertedTxChecksum(txn)
+		if err != nil {
+			return fmt.Errorf("failed to generate checksum: %w", err)
+		}
+
+		color.Yellow(`###########################################`)
+		color.Yellow(fmt.Sprintf("Transaction %d out of %d", idx+1, len(newlyConverted)))
+		color.Blue("-------------------------------------------")
+		printConvertedTx(txn)
+		color.Blue("-------------------------------------------")
 
 		// Prompt the user for inputs.
 		enhanced, err := takeUserInput(txn)
@@ -108,10 +126,16 @@ func Enhance(ctx context.Context, inputDir string, outputDir string) error {
 			return enhancedStatement[i].Timestamp.After(enhancedStatement[j].Timestamp)
 		})
 
+		color.Blue("-------------------------------------------")
+		color.Yellow("Saving...")
+
 		// Writing statement file.
 		if err := writeJSON(enhancedStatement, path.Join(outputDir, enhancedFilename)); err != nil {
 			return fmt.Errorf("failed to write statement file: %w", err)
 		}
+
+		color.Yellow("Saved.")
+		color.Yellow(`###########################################`)
 	}
 
 	return nil
@@ -119,22 +143,24 @@ func Enhance(ctx context.Context, inputDir string, outputDir string) error {
 
 // takeUserInput prompts the user for inputs required to create an enhanced transaction.
 //
-//nolint:funlen // TODO
+//nolint:funlen,cyclop // TODO
 func takeUserInput(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransactionDoc, error) {
 	// This will hold the amount-per-category info.
 	amountPerCat := new(models.AmountPerCategory)
 
 	// Mapping category names to their struct field pointers. This will be helpful while prompting the user.
 	catMap := map[string]*float64{
+		// Credit categories.
 		creditCats[0]: &amountPerCat.Salary,
 		creditCats[1]: &amountPerCat.Returns,
 		creditCats[2]: &amountPerCat.Misc,
 		creditCats[3]: &amountPerCat.Ignorable,
-		debitCats[0]:  &amountPerCat.Salary,
-		debitCats[1]:  &amountPerCat.Returns,
-		debitCats[2]:  &amountPerCat.Misc,
-		debitCats[3]:  &amountPerCat.Luxury,
-		debitCats[4]:  &amountPerCat.Ignorable,
+		// Debit categories.
+		debitCats[0]: &amountPerCat.Essentials,
+		debitCats[1]: &amountPerCat.Investments,
+		debitCats[2]: &amountPerCat.Savings,
+		debitCats[3]: &amountPerCat.Luxury,
+		debitCats[4]: &amountPerCat.Ignorable,
 	}
 
 	// Decide on the categories for the prompt.
@@ -143,7 +169,7 @@ func takeUserInput(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransac
 		promptCats = creditCats
 	}
 
-	fmt.Println(">> AMOUNT PER CATEGORY INFORMATION")
+	color.Yellow("Provide amount distribution among categories...")
 	for {
 		// This will hold the total amount sum for all categories. This should be equal to the transaction amount.
 		var catAmountSum float64
@@ -154,9 +180,14 @@ func takeUserInput(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransac
 			ptr := catMap[cat]
 
 			// Prompt for the category amount.
-			value, err := prompt(cat + ": ")
+			value, err := prompt(fmt.Sprintf("%s component?: ", cat))
 			if err != nil {
 				return nil, fmt.Errorf("failed to read user input: %w", err)
+			}
+
+			// Allow users to provide empty values.
+			if value == "" {
+				value = "0"
 			}
 
 			// Parse the string to float.
@@ -177,9 +208,10 @@ func takeUserInput(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransac
 		fmt.Printf("Sum of these amounts should equal the transaction amount. %f != %f\n", catAmountSum, txn.Amount)
 	}
 
-	fmt.Println(">> OTHER INFORMATION")
+	color.Blue("-------------------------------------------")
+	color.Yellow("Other information...")
 	// Read tags.
-	commaSepTags, err := prompt("Tags: ")
+	commaSepTags, err := prompt("Any tags? (comma-separated, case-insensitive): ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read user input: %w", err)
 	}
@@ -189,6 +221,9 @@ func takeUserInput(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransac
 	for i := range tags {
 		tags[i] = strings.ToLower(strings.TrimSpace(tags[i]))
 	}
+
+	color.Blue("-------------------------------------------")
+	color.Yellow("Any remarks?: ")
 
 	// Read remarks.
 	remarks, err := prompt("Remarks: ")
@@ -208,7 +243,7 @@ func prompt(text string) (string, error) {
 	// Create a reader to read from stdin.
 	reader := bufio.NewReader(os.Stdin)
 	// Print the prompt text.
-	_, _ = fmt.Fprint(os.Stdout, text)
+	_, _ = color.New(color.FgMagenta).Print(text)
 
 	// Read user's input.
 	value, err := reader.ReadString('\n')
