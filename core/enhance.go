@@ -81,7 +81,7 @@ func Enhance(ctx context.Context, inputDir string, outputDir string) error {
 	// Loop over all converted transactions to enhance them.
 	for _, txn := range convertedStatement {
 		// Generate checksum.
-		correlationID, err := genConvertedTxChecksum(txn)
+		correlationID, err := getChecksum(txn)
 		if err != nil {
 			return fmt.Errorf("failed to generate checksum: %w", err)
 		}
@@ -98,7 +98,7 @@ func Enhance(ctx context.Context, inputDir string, outputDir string) error {
 		color.Yellow(fmt.Sprintf("Transaction %d out of %d", idx+1, len(newlyConverted)))
 
 		// Generate checksum.
-		correlationID, err := genConvertedTxChecksum(txn)
+		correlationID, err := getChecksum(txn)
 		if err != nil {
 			return fmt.Errorf("failed to generate checksum: %w", err)
 		}

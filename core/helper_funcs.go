@@ -94,15 +94,15 @@ func readCSV(pathToFile string) ([][]string, error) {
 	return csvContent, nil
 }
 
-// genConvertedTxChecksum provides the checksum of the given transaction.
-func genConvertedTxChecksum(tx *models.ConvertedTransactionDoc) (string, error) {
+// getChecksum provides the checksum of the given object.
+func getChecksum(marshal interface{}) (string, error) {
 	// Convert to byte slice to write to hash.
-	txBytes, err := json.Marshal(tx)
+	marshalled, err := json.Marshal(marshal)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal transaction: %+v, because: %w", tx, err)
+		return "", fmt.Errorf("failed to marshal object: %+v, because: %w", marshalled, err)
 	}
 	// Calculate, format and return the checksum.
-	return fmt.Sprintf("%x", sha256.Sum256(txBytes)), nil
+	return fmt.Sprintf("%x", sha256.Sum256(marshalled)), nil
 }
 
 // writeJSON writes the provided JSON content into the given file.
