@@ -16,14 +16,6 @@ import (
 	"github.com/fatih/color"
 )
 
-// enhancedFilename is the name of the file in which the enhanced transactions will be written.
-const enhancedFilename = "enhanced-transactions.json"
-
-var (
-	creditCats = []string{"Salary", "Returns", "Misc", "Ignorable"}
-	debitCats  = []string{"Essentials", "Investments", "Savings", "Luxury", "Ignorable"}
-)
-
 // Enhance adds the custom fields with zero values to the statement present in the input directory, and places this
 // new statement in the output directory.
 //
@@ -152,7 +144,41 @@ func Enhance(ctx context.Context, inputDir string, outputDir string) error {
 
 // autoEnhance attempts to auto-enhance the given transaction.
 // If auto-enhancement succeeds, the returned boolean value is true, otherwise false.
+//
+//nolint:funlen // TODO
 func autoEnhance(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransactionDoc, bool, error) {
+	// All auto-enhanceable configurations.
+	var enhancementCases []*struct {
+		bankRemarksKW []string
+		categoryDist  map[string]float64
+		tags          []string
+		remarks       string
+	}
+
+	// This will finally be returned.
+	enhanced := &models.EnhancedTransactionDoc{}
+
+	// Check for each enhancement case.
+	for _, eCase := range enhancementCases {
+		// If no matches, we move to the next enhancement case.
+		if !containsAnyNoCase(txn.BankRemarks, eCase.bankRemarksKW) {
+			continue
+		}
+
+		// Convert map to amount per category type.
+		amountPerCat, err := map2AmountPerCat(eCase.categoryDist)
+		if err != nil {
+			return nil, false, fmt.Errorf("failed to convert map to amount per category: %w", err)
+		}
+
+		enhanced.AmountPerCategory = amountPerCat
+		enhanced.Tags = eCase.tags
+		enhanced.Remarks = eCase.remarks
+
+		// Successfully enhanced.
+		return enhanced, true, nil
+	}
+
 	return nil, false, nil
 }
 

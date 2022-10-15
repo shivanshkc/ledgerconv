@@ -11,9 +11,6 @@ import (
 	"github.com/shivanshkc/ledgerconv/core/models"
 )
 
-// convertedFilename is the name of the file in which the converted transactions will be written.
-const convertedFilename = "converted-transactions.json"
-
 // Convert converts all the bank statements in the inputDir into JSON format and stores them into the outputDir.
 //
 // This is an idempotent operation.

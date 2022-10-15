@@ -171,3 +171,35 @@ func prompt(text string) (string, error) {
 	// Return trimmed value.
 	return strings.TrimSpace(value), nil
 }
+
+// map2AmountPerCat converts the given map into a *models.AmountPerCategory type, if the map is compatible.
+func map2AmountPerCat(input map[string]float64) (*models.AmountPerCategory, error) {
+	inputBytes, err := json.Marshal(input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal the input: %w", err)
+	}
+
+	amountPerCat := &models.AmountPerCategory{}
+	if err := json.Unmarshal(inputBytes, amountPerCat); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal into the target: %w", err)
+	}
+
+	return amountPerCat, nil
+}
+
+// containsAnyNoCase checks if the provided mainStr contains any of the subStrings, case-insensitively.
+func containsAnyNoCase(mainStr string, subStrings []string) bool {
+	// Convert to lower case for case-insensitive matching.
+	mainStr = strings.ToLower(mainStr)
+
+	// Loop over all provided sub-strings to find matches.
+	for _, sub := range subStrings {
+		// Convert to lower case for case-insensitive matching.
+		sub = strings.ToLower(sub)
+		if strings.Contains(mainStr, sub) {
+			return true
+		}
+	}
+
+	return false
+}
