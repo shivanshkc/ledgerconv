@@ -9,17 +9,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var convertParamOutputDir string
+var convParamOutput string
 
 // convertCmd represents the convert command.
 var convertCmd = &cobra.Command{
 	Use:   "convert <input-dir>",
 	Short: "Convert CSV bank statements into JSON",
-	Args:  cobra.MinimumNArgs(1),
+
+	// At least one argument is required.
+	Args: cobra.MinimumNArgs(1),
+
+	// Command action.
 	Run: func(cmd *cobra.Command, args []string) {
-		inputDir := args[0]
+		ctx, inputDir := cmd.Context(), args[0]
 		// Core call.
-		if err := core.Convert(cmd.Context(), inputDir, convertParamOutputDir); err != nil {
+		if err := core.NewConverter().Convert(ctx, inputDir, convParamOutput); err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "Failed to convert statements: %+v\n", err)
 		}
 	},
@@ -28,6 +32,6 @@ var convertCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(convertCmd)
 
-	convertCmd.Flags().StringVarP(&convertParamOutputDir, "output", "o", "./output",
+	convertCmd.Flags().StringVarP(&convParamOutput, "output", "o", "converted-statement.json",
 		"The directory where the converted statement will be stored.")
 }

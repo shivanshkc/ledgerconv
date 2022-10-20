@@ -9,17 +9,24 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var enhanceParamOutputDir string
+var (
+	enhParamOutput string
+	enhParamSpec   string
+)
 
 // enhanceCmd represents the enhance command.
 var enhanceCmd = &cobra.Command{
 	Use:   "enhance <input-dir>",
 	Short: "Enhance formatted statements with custom fields.",
-	Args:  cobra.MinimumNArgs(1),
+
+	// At least one argument is required.
+	Args: cobra.MinimumNArgs(1),
+
+	// Command action.
 	Run: func(cmd *cobra.Command, args []string) {
-		inputDir := args[0]
+		ctx, inputDir := cmd.Context(), args[0]
 		// Core call.
-		if err := core.Enhance(cmd.Context(), inputDir, enhanceParamOutputDir); err != nil {
+		if err := core.NewEnhancer().Enhance(ctx, inputDir, enhParamOutput, enhParamSpec); err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "Failed to enhance statements: %+v\n", err)
 		}
 	},
@@ -28,6 +35,9 @@ var enhanceCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(enhanceCmd)
 
-	enhanceCmd.Flags().StringVarP(&enhanceParamOutputDir, "output", "o", "./output",
-		"The directory where the enhanced statement will be stored.")
+	enhanceCmd.Flags().StringVarP(&enhParamOutput, "output", "o", "enhanced-statement.json",
+		"Path where the enhanced statement file will be created or updated.")
+
+	enhanceCmd.Flags().StringVarP(&enhParamSpec, "auto-enhance-spec", "s", "auto-enhance-spec.json",
+		"Path to the auto-enhance specification file.")
 }
