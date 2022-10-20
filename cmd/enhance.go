@@ -35,9 +35,9 @@ var enhanceCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(enhanceCmd)
 
-	enhanceCmd.Flags().StringVarP(&enhParamOutput, "output", "o", "enhanced-statement.json",
+	enhanceCmd.Flags().StringVarP(&enhParamOutput, "output", "o", core.DefaultEnhStmFile,
 		"Path where the enhanced statement file will be created or updated.")
 
-	enhanceCmd.Flags().StringVarP(&enhParamSpec, "auto-enhance-spec", "s", "auto-enhance-spec.json",
+	enhanceCmd.Flags().StringVarP(&enhParamSpec, "auto-enhance-spec", "s", core.DefaultEnhSpecFile,
 		"Path to the auto-enhance specification file.")
 }

@@ -32,6 +32,6 @@ var convertCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(convertCmd)
 
-	convertCmd.Flags().StringVarP(&convParamOutput, "output", "o", "converted-statement.json",
+	convertCmd.Flags().StringVarP(&convParamOutput, "output", "o", core.DefaultConvStmFile,
 		"The directory where the converted statement will be stored.")
 }
