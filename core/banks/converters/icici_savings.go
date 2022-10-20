@@ -9,6 +9,7 @@ import (
 
 // ICICISavings is the converter function for ICICI savings account statements.
 func ICICISavings(csvContent [][]string) ([]*models.ConvertedTransactionDoc, error) {
+	// Header of the transaction table in the CSV file.
 	header := []string{"DATE", "MODE", "PARTICULARS", "DEPOSITS", "WITHDRAWALS", "BALANCE"}
 	return base(csvContent, header, 1, iciciSavingsRow)
 }
