@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/shivanshkc/ledgerconv/core/banks/converters"
 	"github.com/shivanshkc/ledgerconv/core/models"
 )
 
@@ -31,10 +32,10 @@ var accountTypeInferRules = msi{
 
 // AccountTypeConverterMap maps bank account types to their respective ConverterFunc.
 var AccountTypeConverterMap = map[models.BankAccountType]ConverterFunc{
-	models.ICICISavings: nil,
-	models.ICICICredit:  nil,
-	models.HDFCSavings:  nil,
-	models.HDFCCredit:   nil,
+	models.ICICISavings: converters.ICICISavings,
+	models.ICICICredit:  converters.ICICICredit,
+	models.HDFCSavings:  converters.HDFCSavings,
+	models.HDFCCredit:   nil, // Not implemented yet.
 }
 
 // InferAccountType accepts an account name and infers its account type.

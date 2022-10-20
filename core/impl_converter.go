@@ -74,6 +74,11 @@ func (c *converter) Convert(ctx context.Context, inputDir string, outputFile str
 				return fmt.Errorf("failed to convert: %s to statement, because %w", csvPath, err)
 			}
 
+			// Add account name to all transactions.
+			for _, txn := range transactions {
+				txn.AccountName = dir
+			}
+
 			// Collecting transactions in the main slice.
 			statement = append(statement, transactions...)
 		}
