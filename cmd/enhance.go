@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/shivanshkc/ledgerconv/core"
 
@@ -16,7 +17,7 @@ var (
 
 // enhanceCmd represents the enhance command.
 var enhanceCmd = &cobra.Command{
-	Use:   "enhance <input-dir>",
+	Use:   "enhance <input-file>",
 	Short: "Enhance formatted statements with custom fields.",
 
 	// At least one argument is required.
@@ -24,9 +25,9 @@ var enhanceCmd = &cobra.Command{
 
 	// Command action.
 	Run: func(cmd *cobra.Command, args []string) {
-		ctx, inputDir := cmd.Context(), args[0]
+		ctx, inputFile := cmd.Context(), args[0]
 		// Core call.
-		if err := core.NewEnhancer().Enhance(ctx, inputDir, enhParamOutput, enhParamSpec); err != nil {
+		if err := core.NewEnhancer().Enhance(ctx, inputFile, enhParamOutput, enhParamSpec); err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "Failed to enhance statements: %+v\n", err)
 		}
 	},
@@ -35,9 +36,11 @@ var enhanceCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(enhanceCmd)
 
-	enhanceCmd.Flags().StringVarP(&enhParamOutput, "output", "o", core.DefaultEnhStmFile,
+	enhanceCmd.Flags().StringVarP(&enhParamOutput, "output", "o",
+		path.Join(".", core.DefaultEnhStmFile),
 		"Path where the enhanced statement file will be created or updated.")
 
-	enhanceCmd.Flags().StringVarP(&enhParamSpec, "auto-enhance-spec", "s", core.DefaultEnhSpecFile,
+	enhanceCmd.Flags().StringVarP(&enhParamSpec, "auto-enhance-spec", "s",
+		path.Join(".", core.DefaultEnhSpecFile),
 		"Path to the auto-enhance specification file.")
 }

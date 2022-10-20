@@ -12,6 +12,6 @@ func NewEnhancer() Enhancer {
 	return &enhancer{}
 }
 
-func (e *enhancer) Enhance(ctx context.Context, inputPath string, outputPath string, specPath string) error {
+func (e *enhancer) Enhance(ctx context.Context, inputFile string, outputFile string, specFile string) error {
 	return nil
 }

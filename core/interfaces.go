@@ -9,21 +9,21 @@ import (
 //
 // Inputs:
 //
-//  1. inputPath - where the account directories containing the Original statements are present.
-//  2. outputPath - where the Converted statement will be stored.
+//  1. inputDir - where the account directories containing the original statements are present.
+//  2. outputFile - where the converted statement file will be stored.
 type Converter interface {
-	Convert(ctx context.Context, inputPath string, outputPath string) error
+	Convert(ctx context.Context, inputDir string, outputFile string) error
 }
 
-// Enhancer converts a Converted statement into an Enhanced statement.
+// Enhancer converts a converted statement into an enhanced statement.
 //
-// Enhanced statements are nothing but Converted statements with some additional fields that are useful for statistics.
+// Enhanced statements are nothing but converted statements with some additional fields that are useful for statistics.
 //
 // Inputs:
 //
-//  1. inputPath - where the Converted statement is present.
-//  2. outputPath - where the Enhanced statement is present or will be stored.
-//  3. autoEnhanceSpecPath - Path to the specification that allows auto-enhancement.
+//  1. inputFile - where the converted statement file is present.
+//  2. outputFile - where the enhanced statement file is present or will be stored.
+//  3. autoEnhanceSpecFile - Path to the specification file that allows auto-enhancement.
 type Enhancer interface {
-	Enhance(ctx context.Context, inputPath string, outputPath string, autoEnhanceSpecPath string) error
+	Enhance(ctx context.Context, inputFile string, outputFile string, autoEnhanceSpecFile string) error
 }
