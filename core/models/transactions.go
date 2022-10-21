@@ -30,12 +30,12 @@ type EnhancedTransactionDoc struct {
 	// DocCorrelationID correlates this doc with its corresponding ConvertedTransactionDoc.
 	DocCorrelationID string `json:"doc_correlation_id"`
 
-	// AmountPerCategory tells how the amount is distributed amongst the different categories.
-	AmountPerCategory *AmountPerCategory `json:"amount_per_category"`
-	// Tags of the transaction.
-	Tags []string `json:"tags"`
-	// Remarks of the transaction.
-	Remarks string `json:"remarks"`
+	// Categories tells how the amount is distributed amongst the different categories.
+	Categories *AmountPerCategory `json:"categories"`
+	// Labels of the transaction.
+	Labels []string `json:"labels"`
+	// Summary of the transaction.
+	Summary string `json:"summary"`
 }
 
 // AmountPerCategory holds the distribution of a transaction's amount over all categories.

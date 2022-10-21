@@ -88,7 +88,7 @@ func ReadWholeCSV(filePath string) ([][]string, error) {
 }
 
 // WriteJSONFile writes the provided data into the JSON file at the given path.
-func WriteJSONFile(data interface{}, filePath string) error {
+func WriteJSONFile(filePath string, data interface{}) error {
 	// Marshal the transaction list to write into file.
 	jsonBytes, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
@@ -98,6 +98,23 @@ func WriteJSONFile(data interface{}, filePath string) error {
 	// Write the output file.
 	if err := os.WriteFile(filePath, jsonBytes, os.ModePerm); err != nil {
 		return fmt.Errorf("failed to write output file: %w", err)
+	}
+
+	return nil
+}
+
+// ReadJSONFile reads the JSON file at the given path and decodes the data into the given target.
+func ReadJSONFile(filePath string, target interface{}) error {
+	// Open file for reading.
+	file, err := os.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to open file for reading: %w", err)
+	}
+	defer func() { _ = file.Close() }()
+
+	// Decode into target.
+	if err := json.NewDecoder(file).Decode(target); err != nil {
+		return fmt.Errorf("failed to decode json data into target: %w", err)
 	}
 
 	return nil

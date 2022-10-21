@@ -90,7 +90,7 @@ func (c *converter) Convert(ctx context.Context, inputDir string, outputFile str
 	})
 
 	// Writing statement file.
-	if err := io.WriteJSONFile(statement, outputFile); err != nil {
+	if err := io.WriteJSONFile(outputFile, statement); err != nil {
 		return fmt.Errorf("failed to write  converted statement file: %w", err)
 	}
 
