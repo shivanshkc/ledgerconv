@@ -1,6 +1,7 @@
 package io
 
 import (
+	"bufio"
 	"encoding/csv"
 	"encoding/json"
 	"errors"
@@ -8,6 +9,11 @@ import (
 	"io"
 	"os"
 	"strings"
+	"text/tabwriter"
+
+	"github.com/shivanshkc/ledgerconv/core/models"
+
+	"github.com/fatih/color"
 )
 
 // ListVisibleDir lists all visible directories in the provided path.
@@ -118,4 +124,55 @@ func ReadJSONFile(filePath string, target interface{}) error {
 	}
 
 	return nil
+}
+
+// PrettyPrintConvTx prints the given converted transaction prettily.
+func PrettyPrintConvTx(doc *models.ConvertedTransactionDoc) {
+	keyColor := color.New(color.FgMagenta)
+	valColor := color.New(color.FgYellow)
+
+	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
+
+	keyColor.Fprint(writer, "Account\t:\t")
+	valColor.Fprint(writer, doc.AccountName)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Amount\t:\t")
+	valColor.Fprint(writer, doc.Amount)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Timestamp\t:\t")
+	valColor.Fprint(writer, doc.Timestamp)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Bank serial\t:\t")
+	valColor.Fprint(writer, doc.BankSerial)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Payment mode\t:\t")
+	valColor.Fprint(writer, doc.BankPaymentMode)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Bank remarks\t:\t")
+	valColor.Fprint(writer, doc.BankRemarks)
+	fmt.Fprintln(writer, "")
+
+	writer.Flush()
+}
+
+// Prompt the user for an input.
+func Prompt(text string) (string, error) {
+	// Create a reader to read from stdin.
+	reader := bufio.NewReader(os.Stdin)
+	// Print the prompt text.
+	_, _ = color.New(color.FgMagenta).Print(text)
+
+	// Read user's input.
+	value, err := reader.ReadString('\n')
+	if err != nil {
+		return "", fmt.Errorf("failed to read stdin: %w", err)
+	}
+
+	// Return trimmed value.
+	return strings.TrimSpace(value), nil
 }
