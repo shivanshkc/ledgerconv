@@ -85,6 +85,9 @@ func (e *enhancer) Enhance(ctx context.Context, inputFile string, outputFile str
 
 		//nolint:gocritic // Cannot write as switch statement.
 		if done {
+			// Mark the AutoEnhanced flag as true.
+			enhancedTx.AutoEnhanced = true
+
 			color.Cyan("-----------------------------------------------------------------")
 			color.Green("Auto enhanced.")
 		} else if !onlyAuto {
@@ -93,6 +96,9 @@ func (e *enhancer) Enhance(ctx context.Context, inputFile string, outputFile str
 			if err != nil {
 				return fmt.Errorf("failed to enhance transaction: %+v, because: %w", txn, err)
 			}
+
+			// Mark the AutoEnhanced flag as false.
+			enhancedTx.AutoEnhanced = false
 		} else {
 			color.Cyan("-----------------------------------------------------------------")
 			color.Blue("Not auto-enhanceable. Skipped.")

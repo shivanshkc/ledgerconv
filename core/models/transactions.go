@@ -36,6 +36,9 @@ type EnhancedTransactionDoc struct {
 	Labels []string `json:"labels"`
 	// Summary of the transaction.
 	Summary string `json:"summary"`
+
+	// AutoEnhanced is a flag that tells whether the transaction was auto-enhanced or not.
+	AutoEnhanced bool `json:"auto_enhanced"`
 }
 
 // AmountPerCategory holds the distribution of a transaction's amount over all categories.

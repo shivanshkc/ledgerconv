@@ -25,29 +25,34 @@ func Manual(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransactionDoc
 		Categories:              &models.AmountPerCategory{},
 	}
 
+	// Declaring categories for prompting the user.
+	// TODO: This is clumsy and difficult to maintain if a new category is introduced.
+	creditCategories := []string{"Salary", "Returns", "Misc", "Ignorable"}
+	debitCategories := []string{"Essentials", "Investments", "Savings", "Luxury", "Ignorable"}
+
 	// Map category names to their struct field pointers. This will be helpful while prompting the user.
 	creditCategoriesMap := map[string]*float64{
 		// Credit categories.
-		"Salary":    &enhanced.Categories.Salary,
-		"Returns":   &enhanced.Categories.Returns,
-		"Misc":      &enhanced.Categories.Misc,
-		"Ignorable": &enhanced.Categories.Ignorable,
+		creditCategories[0]: &enhanced.Categories.Salary,
+		creditCategories[1]: &enhanced.Categories.Returns,
+		creditCategories[2]: &enhanced.Categories.Misc,
+		creditCategories[3]: &enhanced.Categories.Ignorable,
 	}
 
 	// Do the same for debit categories as well.
 	debitCategoriesMap := map[string]*float64{
 		// Debit categories.
-		"Essentials":  &enhanced.Categories.Essentials,
-		"Investments": &enhanced.Categories.Investments,
-		"Savings":     &enhanced.Categories.Savings,
-		"Luxury":      &enhanced.Categories.Luxury,
-		"Ignorable":   &enhanced.Categories.Ignorable,
+		debitCategories[0]: &enhanced.Categories.Essentials,
+		debitCategories[1]: &enhanced.Categories.Investments,
+		debitCategories[2]: &enhanced.Categories.Savings,
+		debitCategories[3]: &enhanced.Categories.Luxury,
+		debitCategories[4]: &enhanced.Categories.Ignorable,
 	}
 
 	// Decide on the categories for the prompt.
-	promptCategories := creditCategoriesMap
+	promptCategories, promptCategoriesMap := creditCategories, creditCategoriesMap
 	if txn.Amount < 0 {
-		promptCategories = debitCategoriesMap
+		promptCategories, promptCategoriesMap = debitCategories, debitCategoriesMap
 	}
 
 	color.Blue("Provide amount distribution among categories...")
@@ -56,7 +61,10 @@ func Manual(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransactionDoc
 		var catAmountSum float64
 
 		// Loop over categories to take user input.
-		for catName, catPtr := range promptCategories {
+		for _, catName := range promptCategories {
+			// Get the corresponding pointer.
+			catPtr := promptCategoriesMap[catName]
+
 			// Prompt for the category amount.
 			value, err := io.Prompt(fmt.Sprintf("%s component?: ", catName))
 			if err != nil {
@@ -103,10 +111,8 @@ func Manual(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransactionDoc
 	}
 
 	color.Cyan("-----------------------------------------------------------------")
-	color.Yellow("Summary?: ")
-
 	// Read summary.
-	summary, err := io.Prompt("Summary: ")
+	summary, err := io.Prompt("Summary?: ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read user input: %w", err)
 	}
@@ -114,6 +120,7 @@ func Manual(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransactionDoc
 	// Attach information.
 	enhanced.Labels = labels
 	enhanced.Summary = summary
+	enhanced.AutoEnhanced = false
 
 	return enhanced, nil
 }

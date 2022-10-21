@@ -52,6 +52,7 @@ func Auto(txn *models.ConvertedTransactionDoc, spec []*models.AutoEnhanceSpec) (
 		// Other fields.
 		enhanced.Labels = elem.Labels
 		enhanced.Summary = elem.Summary
+		enhanced.AutoEnhanced = true
 
 		return enhanced, true, nil
 	}
