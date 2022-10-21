@@ -25,5 +25,5 @@ type Converter interface {
 //  2. outputFile - where the enhanced statement file is present or will be stored.
 //  3. autoEnhanceSpecFile - Path to the specification file that allows auto-enhancement.
 type Enhancer interface {
-	Enhance(ctx context.Context, inputFile string, outputFile string, autoEnhanceSpecFile string) error
+	Enhance(ctx context.Context, inputFile string, outputFile string, autoEnhanceSpecFile string, onlyAuto bool) error
 }

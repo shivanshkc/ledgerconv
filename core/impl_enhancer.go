@@ -26,7 +26,8 @@ func NewEnhancer() Enhancer {
 }
 
 //nolint:funlen,cyclop // Core functions are allowed to be big.
-func (e *enhancer) Enhance(ctx context.Context, inputFile string, outputFile string, specFile string) error {
+func (e *enhancer) Enhance(ctx context.Context, inputFile string, outputFile string, specFile string, onlyAuto bool,
+) error {
 	// Read the provided converted statement.
 	var convertedStm []*models.ConvertedTransactionDoc
 	if err := io.ReadJSONFile(inputFile, &convertedStm); err != nil {
@@ -82,15 +83,20 @@ func (e *enhancer) Enhance(ctx context.Context, inputFile string, outputFile str
 			return fmt.Errorf("failed to auto-enhance transaction: %+v, because: %w", txn, err)
 		}
 
+		//nolint:gocritic // Cannot write as switch statement.
 		if done {
 			color.Cyan("-----------------------------------------------------------------")
 			color.Green("Auto enhanced.")
-		} else {
+		} else if !onlyAuto {
 			// Enhance manually.
 			enhancedTx, err = enhance.Manual(txn)
 			if err != nil {
 				return fmt.Errorf("failed to enhance transaction: %+v, because: %w", txn, err)
 			}
+		} else {
+			color.Cyan("-----------------------------------------------------------------")
+			color.Blue("Not auto-enhanceable. Skipped.")
+			continue
 		}
 
 		// Generate checksum.
