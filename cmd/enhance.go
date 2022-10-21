@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/shivanshkc/ledgerconv/core"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +27,7 @@ var enhanceCmd = &cobra.Command{
 		ctx, inputFile := cmd.Context(), args[0]
 		// Core call.
 		if err := core.NewEnhancer().Enhance(ctx, inputFile, enhParamOutput, enhParamSpec); err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "Failed to enhance statements: %+v\n", err)
+			_, _ = color.New(color.FgRed).Fprintf(os.Stderr, "Failed to enhance statements: %+v\n", err)
 		}
 	},
 }
@@ -38,6 +38,6 @@ func init() {
 	enhanceCmd.Flags().StringVarP(&enhParamOutput, "output", "o", "./enhanced.json",
 		"Path where the enhanced statement file will be created or updated.")
 
-	enhanceCmd.Flags().StringVarP(&enhParamSpec, "auto-enhance-spec", "s",
-		"./auto-enhance-spec.json", "Path to the auto-enhance specification file.")
+	enhanceCmd.Flags().StringVarP(&enhParamSpec, "auto-enhance-spec", "s", "",
+		"Path to the auto-enhance specification file.")
 }

@@ -68,3 +68,23 @@ type AmountPerCategory struct {
 	Ignorable float64 `json:"ignorable"`
 	// ###############################################
 }
+
+// HasOnlyDebit returns true if the AmountPerCategory only has debit categories filled.
+func (a *AmountPerCategory) HasOnlyDebit() bool {
+	return a.Salary == 0 && a.Returns == 0 && a.Misc == 0
+}
+
+// HasOnlyCredit returns true if the AmountPerCategory only has credit categories filled.
+func (a *AmountPerCategory) HasOnlyCredit() bool {
+	return a.Essentials == 0 && a.Investments == 0 && a.Luxury == 0 && a.Savings == 0
+}
+
+// DebitSum returns the sum of all debit category values.
+func (a *AmountPerCategory) DebitSum() float64 {
+	return a.Essentials + a.Investments + a.Luxury + a.Savings + a.Ignorable
+}
+
+// CreditSum returns the sum of all credit category values.
+func (a *AmountPerCategory) CreditSum() float64 {
+	return a.Salary + a.Returns + a.Misc + a.Ignorable
+}

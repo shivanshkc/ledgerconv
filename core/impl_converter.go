@@ -79,7 +79,7 @@ func (c *converter) Convert(ctx context.Context, inputDir string, outputFile str
 				txn.AccountName = dir
 			}
 
-			// Collecting transactions in the main slice.
+			// Collect transactions in the main slice.
 			statement = append(statement, transactions...)
 		}
 	}
@@ -89,7 +89,7 @@ func (c *converter) Convert(ctx context.Context, inputDir string, outputFile str
 		return statement[i].Timestamp.After(statement[j].Timestamp)
 	})
 
-	// Writing statement file.
+	// Write statement file.
 	if err := io.WriteJSONFile(outputFile, statement); err != nil {
 		return fmt.Errorf("failed to write  converted statement file: %w", err)
 	}

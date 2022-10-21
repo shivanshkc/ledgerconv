@@ -62,7 +62,7 @@ func ICICICredit(csvContent [][]string) ([]*models.ConvertedTransactionDoc, erro
 			amount *= -1
 		}
 
-		// Instantiating the transaction doc.
+		// Instantiate the transaction doc.
 		doc := &models.ConvertedTransactionDoc{
 			AccountName:     "", // This is not the responsibility of the converterFunc.
 			Amount:          amount,
@@ -72,7 +72,7 @@ func ICICICredit(csvContent [][]string) ([]*models.ConvertedTransactionDoc, erro
 			BankRemarks:     remarks,
 		}
 
-		// Collecting the result.
+		// Collect the result.
 		statement = append(statement, doc)
 	}
 

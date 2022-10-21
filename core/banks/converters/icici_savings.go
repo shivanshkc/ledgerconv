@@ -64,7 +64,7 @@ func ICICISavings(csvContent [][]string) ([]*models.ConvertedTransactionDoc, err
 			continue
 		}
 
-		// Instantiating the transaction doc.
+		// Instantiate the transaction doc.
 		doc := &models.ConvertedTransactionDoc{
 			AccountName:     "", // This is not the responsibility of the converterFunc.
 			Amount:          amount,
@@ -74,7 +74,7 @@ func ICICISavings(csvContent [][]string) ([]*models.ConvertedTransactionDoc, err
 			BankRemarks:     remarks,
 		}
 
-		// Collecting the result.
+		// Collect the result.
 		statement = append(statement, doc)
 	}
 

@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/shivanshkc/ledgerconv/core"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +24,7 @@ var convertCmd = &cobra.Command{
 		ctx, inputDir := cmd.Context(), args[0]
 		// Core call.
 		if err := core.NewConverter().Convert(ctx, inputDir, convParamOutput); err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "Failed to convert statements: %+v\n", err)
+			_, _ = color.New(color.FgRed).Fprintf(os.Stderr, "Failed to convert statements: %+v\n", err)
 		}
 	},
 }
