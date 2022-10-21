@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path"
+
 
 	"github.com/shivanshkc/ledgerconv/core"
 
@@ -33,7 +33,6 @@ var convertCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(convertCmd)
 
-	convertCmd.Flags().StringVarP(&convParamOutput, "output", "o",
-		path.Join(".", core.DefaultConvStmFile),
+	convertCmd.Flags().StringVarP(&convParamOutput, "output", "o", "./converted.json",
 		"Path where the converted statement file will be created or updated.")
 }

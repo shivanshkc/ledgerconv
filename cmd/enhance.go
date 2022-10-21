@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path"
+
 
 	"github.com/shivanshkc/ledgerconv/core"
 
@@ -36,11 +36,9 @@ var enhanceCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(enhanceCmd)
 
-	enhanceCmd.Flags().StringVarP(&enhParamOutput, "output", "o",
-		path.Join(".", core.DefaultEnhStmFile),
+	enhanceCmd.Flags().StringVarP(&enhParamOutput, "output", "o", "./enhanced.json",
 		"Path where the enhanced statement file will be created or updated.")
 
 	enhanceCmd.Flags().StringVarP(&enhParamSpec, "auto-enhance-spec", "s",
-		path.Join(".", core.DefaultEnhSpecFile),
-		"Path to the auto-enhance specification file.")
+		"./auto-enhance-spec.json", "Path to the auto-enhance specification file.")
 }
