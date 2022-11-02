@@ -1,0 +1,178 @@
+package io
+
+import (
+	"bufio"
+	"encoding/csv"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"os"
+	"strings"
+	"text/tabwriter"
+
+	"github.com/shivanshkc/ledgerconv/core/models"
+
+	"github.com/fatih/color"
+)
+
+// ListVisibleDir lists all visible directories in the provided path.
+func ListVisibleDir(dirPath string) ([]string, error) {
+	// Read the given directory to get its children.
+	elements, err := os.ReadDir(dirPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read directory: %s, because: %w", dirPath, err)
+	}
+
+	// This slice will hold the directories to be returned.
+	var visibleDir []string
+	// Filter elements.
+	for _, elem := range elements {
+		// If the element is a directory, and it is visible, it is considered.
+		if elem.IsDir() && !strings.HasPrefix(elem.Name(), ".") {
+			visibleDir = append(visibleDir, elem.Name())
+		}
+	}
+
+	return visibleDir, nil
+}
+
+// ListCSVFiles lists all CSV files in the provided path.
+func ListCSVFiles(dirPath string) ([]string, error) {
+	// Read the given directory to get its children.
+	elements, err := os.ReadDir(dirPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read directory: %s, because: %w", dirPath, err)
+	}
+
+	// This slice will hold the files to be returned.
+	var csvFiles []string
+	// Filter elements.
+	for _, elem := range elements {
+		// If the element is not a directory, and its extension is .csv, it is considered.
+		if !elem.IsDir() && strings.HasSuffix(elem.Name(), ".csv") {
+			csvFiles = append(csvFiles, elem.Name())
+		}
+	}
+
+	return csvFiles, nil
+}
+
+// ReadWholeCSV returns the entire content of the CSV file present in the provided path.
+func ReadWholeCSV(filePath string) ([][]string, error) {
+	// Open the file for the CSV reader.
+	fileReader, err := os.Open(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open file: %s, because: %w", filePath, err)
+	}
+	// File reader will be closed upon return.
+	defer func() { _ = fileReader.Close() }()
+
+	// Instantiate a new CSV reader to read the given file.
+	csvReader := csv.NewReader(fileReader)
+	// This var will hold all the CSV content.
+	var csvContent [][]string
+	// Infinite loop to read the whole CSV. It terminates when the file ends.
+	for {
+		// Read line by line.
+		content, err := csvReader.Read()
+		// Ignore some errors because bank statements are ill-formatted and hence trigger a lot of false alarms.
+		if err != nil && !errors.Is(err, csv.ErrFieldCount) && !errors.Is(err, io.EOF) {
+			return nil, fmt.Errorf("failed to read csv content: %w", err)
+		}
+
+		// This means that the file has ended.
+		if len(content) == 0 {
+			break
+		}
+
+		// Collect results.
+		csvContent = append(csvContent, content)
+	}
+
+	return csvContent, nil
+}
+
+// WriteJSONFile writes the provided data into the JSON file at the given path.
+func WriteJSONFile(filePath string, data interface{}) error {
+	// Marshal the transaction list to write into file.
+	jsonBytes, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		return fmt.Errorf("failed to marshal json: %w", err)
+	}
+
+	// Write the output file.
+	if err := os.WriteFile(filePath, jsonBytes, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to write output file: %w", err)
+	}
+
+	return nil
+}
+
+// ReadJSONFile reads the JSON file at the given path and decodes the data into the given target.
+func ReadJSONFile(filePath string, target interface{}) error {
+	// Open file for reading.
+	file, err := os.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to open file for reading: %w", err)
+	}
+	defer func() { _ = file.Close() }()
+
+	// Decode into target.
+	if err := json.NewDecoder(file).Decode(target); err != nil {
+		return fmt.Errorf("failed to decode json data into target: %w", err)
+	}
+
+	return nil
+}
+
+// PrettyPrintConvTx prints the given converted transaction prettily.
+func PrettyPrintConvTx(doc *models.ConvertedTransactionDoc) {
+	keyColor := color.New(color.FgMagenta)
+	valColor := color.New(color.FgYellow)
+
+	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
+
+	keyColor.Fprint(writer, "Account\t:\t")
+	valColor.Fprint(writer, doc.AccountName)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Amount\t:\t")
+	valColor.Fprint(writer, doc.Amount)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Timestamp\t:\t")
+	valColor.Fprint(writer, doc.Timestamp)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Bank serial\t:\t")
+	valColor.Fprint(writer, doc.BankSerial)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Payment mode\t:\t")
+	valColor.Fprint(writer, doc.BankPaymentMode)
+	fmt.Fprintln(writer, "")
+
+	keyColor.Fprint(writer, "Bank remarks\t:\t")
+	valColor.Fprint(writer, doc.BankRemarks)
+	fmt.Fprintln(writer, "")
+
+	writer.Flush()
+}
+
+// Prompt the user for an input.
+func Prompt(text string) (string, error) {
+	// Create a reader to read from stdin.
+	reader := bufio.NewReader(os.Stdin)
+	// Print the prompt text.
+	_, _ = color.New(color.FgMagenta).Print(text)
+
+	// Read user's input.
+	value, err := reader.ReadString('\n')
+	if err != nil {
+		return "", fmt.Errorf("failed to read stdin: %w", err)
+	}
+
+	// Return trimmed value.
+	return strings.TrimSpace(value), nil
+}
