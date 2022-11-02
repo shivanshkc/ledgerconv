@@ -105,9 +105,12 @@ func Manual(txn *models.ConvertedTransactionDoc) (*models.EnhancedTransactionDoc
 	}
 
 	// Parse and format labels.
-	labels := strings.Split(commaSepLabels, ",")
-	for i := range labels {
-		labels[i] = strings.ToLower(strings.TrimSpace(labels[i]))
+	labels := []string(nil)
+	if commaSepLabels != "" {
+		labels = strings.Split(commaSepLabels, ",")
+		for i := range labels {
+			labels[i] = strings.ToLower(strings.TrimSpace(labels[i]))
+		}
 	}
 
 	color.Cyan("-----------------------------------------------------------------")

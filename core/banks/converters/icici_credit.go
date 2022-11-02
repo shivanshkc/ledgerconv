@@ -56,9 +56,7 @@ func ICICICredit(csvContent [][]string) ([]*models.ConvertedTransactionDoc, erro
 		if amount == 0 {
 			continue
 		}
-
-		// Apparently, debit transactions have "CR" BillingAmountSign -_-
-		if amountSign == "CR" {
+		if amountSign != "CR" {
 			amount *= -1
 		}
 
